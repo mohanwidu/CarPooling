@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" ng-app="letsgo">
+<head>
+    <meta charset="utf-8">
+    <title>UST Car Pooling</title>
+<!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-route.js"></script>
+    <!--<script src="../controllers/getrideController.js"></script>-->
+</head>
+<body>
+    <nav class="navbar navbar-default">
+    <div class="container-fluid" ng-controller="getrideController">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand active" href="http://localhost:3000">LetsGo</a>
+        </div>
+
+         <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="http://localhost:3000/getride">Get Ride <span class="sr-only">(current)</span></a></li>
+        <!--li><a href="#">Get Ride </a></li-->
+        <li><a href="http://localhost:3000/offerride">Offer Ride</a></li>
+        <li><a href="#">Forum</a></li>
+      </ul>
+      
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="http://localhost:3000/myrides">My Rides</a></li> 
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+
+    </br>
+
+        <h1> Search for availability in your route..</h1>
+        <div class="row">
+			<div class="col-lg-4">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon" id="sizing-addon">From</span>
+					<input type="text" class="form-control" placeholder="Starting from" aria-describedby="sizing-addon1" ng-model="getData.from">
+                    
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon" id="sizing-addon1">To  </span>
+					<input type="text" class="form-control" placeholder="Departing to" aria-describedby="sizing-addon1" ng-model="getData.to">
+                    
+				</div>
+			</div>
+			<div class="col-lg-4">
+				<div class="input-group">
+					<span class="input-group-btn ">
+					<button class=" btn btn-lg btn-default " type="button" ng-click="rideSearch()">Search</button>
+					</span>
+				</div>
+			</div>
+		</div>
+        <div ng-show="showme" >
+        <!--<div>    -->
+            <h2> Displaying available trips in your route.. </h2>
+            <div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Seats left</th>
+                        <th>Journey On</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="trip in trips">
+                        <td>{{ trip.from }}</td>
+                        <td>{{ trip.to }}</td>
+                        <td>{{ trip.seats_available }}</td>
+                        <td>{{ trip.journey_date }}</td>
+                        <td>
+                            <div class="input-group">
+					            <span class="input-group-btn ">
+					            <button class=" btn btn-lg btn-default " type="button" ng-click="bookConfirm(trip)">Book</button>
+					            </span>
+				            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>  
+        </div>
+    </div><!-- /.container-fluid -->
+
+    </nav> 
+
+<script>
+
+		var letsgo = angular.module("letsgo", []);
+        	
+        letsgo.controller('getrideController', ['$scope', '$http', function($scope, $http) {
+
+            $scope.method = 'GET';
+            $scope.url = '/trips';
+            $scope.showme = false; 
+          
+            $scope.rideSearch =  function(){
+               
+            $scope.code = null;
+            $scope.response = null;
+            $scope.showme = true;
+            console.log($scope.getData);
+            $http({method: $scope.method, url: $scope.url, params: $scope.getData }).
+                then(function(response) {
+                $scope.status = response.status;
+                $scope.trips = response.data;
+                console.log(response.status);
+                console.log(response.data);
+                }, function(response) {
+                $scope.data = response.data || 'Request failed';
+                $scope.status = response.status;   
+                });
+            }; 
+
+            $scope.bookConfirm =  function(trip){
+                var seatsRequired =prompt("How many seats you need ? ");
+                if (seatsRequired == null || seatsRequired == "" || seatsRequired > trip.seats_available){
+                    if (seatsRequired > trip.seats_available) {
+                        alert("Not enough seats available!" )
+                    } else{ 
+                        alert("Your booking is ignored..! ")
+                    }
+                }else{
+                    $scope.method = 'PUT';
+                    $scope.url = '/trips';
+                    $scope.code = null;
+                    $scope.response = null;
+                                        
+                    $http({method: $scope.method, url: $scope.url, data: {
+                        "id": trip._id, 
+                        "seats": trip.seats_available,
+                        "reserved_for" : { "uid": "U27870", "name": "Mohankumar", "cancelled": false}
+                    }}).
+                        then(function(response) {
+                        $scope.status = response.status;
+                        $scope.trip = response.data;
+                        console.log(response.status);
+                        console.log($scope.trip);
+                        alert("Your seat is booked.. :)")
+                        }, function(response) {
+                        $scope.data = response.data || 'Request failed';
+                        $scope.status = response.status;   
+                        });
+                }
+            };
+
+        }]);
+</script>
+
+</body>

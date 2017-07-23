@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en" ng-app="letsgo2">
+<head>
+    <meta charset="utf-8">
+    <title>UST Car Pooling</title>
+<!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-route.js"></script>
+    <script src="../ui-bootstrap-tpls-2.5.0.js"></script>
+    <!--<script src="../controllers/getrideController.js"></script>-->
+</head>
+<body>
+    <nav class="navbar navbar-default">
+    <div class="container-fluid" ng-controller="myrideController">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand active" href="http://localhost:3000">LetsGo</a>
+        </div>
+
+         <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li><a href="http://localhost:3000/getride">Get Ride <span class="sr-only">(current)</span></a></li>
+        <!--li><a href="#">Get Ride </a></li-->
+        <li><a href="http://localhost:3000/offerride">Offer Ride</a></li>
+        <li><a href="#">Forum</a></li>
+      </ul>
+      
+      <ul class="nav navbar-nav navbar-right">
+        <li class="active"><a href="http://localhost:3000/myrides">My Rides</a></li> 
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+
+    </br>
+
+        <h1> Rides you Offered..</h1>
+            <div class="input-group">
+                <span class="input-group-btn ">
+                <button class=" btn btn-lg btn-default " type="button" ng-click="getmyRides()">See/hide</button>
+                </span>
+            </div>
+            <div ng-show="showMyOffer">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Seats left</th>
+                        <th>Journey On</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="trip in trips">
+                        <td>{{ trip.from }}</td>
+                        <td>{{ trip.to }}</td>
+                        <td>{{ trip.seats_available }}</td>
+                        <td>{{ trip.journey_date }}</td>
+                        <td>
+                            <div class="input-group">
+					            <span class="input-group-btn ">
+					            <button class=" btn btn-lg btn-default " type="button" ng-click="editRide(trip)">Edit</button>
+					            </span>
+				            </div>
+                        </td>
+                    </tr>               
+                    </tbody>
+                </table>
+            </div>  
+
+        <h1> Rides you Booked..</h1>
+             <div class="input-group">
+                <span class="input-group-btn ">
+                <button class=" btn btn-lg btn-default " type="button" ng-click="getmyBookings()">See/hide</button>
+                </span>
+            </div>
+            <div ng-show="showMyBookings">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <!--<th>Seats left</th>-->
+                        <th>Journey On</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="trip in trips">
+                        <td>{{ trip.from }}</td>
+                        <td>{{ trip.to }}</td>
+                        <!--<td>{{ trip.seats_available }}</td>-->
+                        <td>{{ trip.journey_date }}</td>
+                        <td>
+                            <div class="input-group">
+					            <span class="input-group-btn ">
+					            <button class=" btn btn-lg btn-default " type="button" ng-disabled="trip.disabled" ng-click="cancelRide(trip)">Cancel</button>
+					            </span>
+				            </div>
+                        </td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>  
+    </div><!-- /.container-fluid -->
+
+    </nav> 
+
+<script>
+
+		var letsgo2 = angular.module("letsgo2", [   ]);
+        	
+        letsgo2.controller('myrideController', ['$scope', '$http', function($scope, $http) {
+
+            $scope.showMyOffer = false; 
+            $scope.showMyBookings = false;
+          
+            $scope.getmyRides =  function(){
+
+            $scope.method = 'GET';
+            $scope.url = '/myoffers';   
+            $scope.code = null;
+            $scope.response = null;
+            $scope.params = null;
+            $scope.showMyBookings = false;
+            $scope.showMyOffer = !$scope.showMyOffer;
+            
+            if ($scope.showMyOffer === true) {
+                $http({method: $scope.method, url: $scope.url, params: {"uid":"U27870"} }).
+                    then(function(response) {
+                    $scope.status = response.status;
+                    $scope.trips = response.data;
+                    console.log(response.status);
+                    //console.log(response.data);
+                    }, function(response) {
+                    $scope.data = response.data || 'Request failed';
+                    $scope.status = response.status;   
+                    });
+                }; 
+            };    
+            
+            
+            $scope.getmyBookings =  function(){
+                
+            $scope.method = 'GET';    
+            $scope.url = '/mybookings';   
+            $scope.code = null;
+            $scope.response = null;
+            $scope.params = null;
+            $scope.showMyOffer = false; 
+            $scope.showMyBookings = !$scope.showMyBookings;
+            
+            if ($scope.showMyBookings === true) {
+                $http({method: $scope.method, url: $scope.url, params: { "myid": "U27870"} }).
+                    then(function(response) {
+                    $scope.status = response.status;
+                    $scope.trips = response.data;
+                    console.log(response.status);
+                    console.log(response.data);
+                    }, function(response) {
+                    $scope.data = response.data || 'Request failed';
+                    $scope.status = response.status;   
+                    });
+                }; 
+            };    
+
+
+            $scope.cancelRide = function(trip){
+
+            var confirmCancel = confirm("Are you sure to cancel ? ") ;
+            if  (confirmCancel === true)  {
+                $scope.method = 'PUT';
+                $scope.url = '/cancelride';   
+                $scope.code = null;
+                $scope.response = null;
+                $scope.params = null;
+
+                $http({method: $scope.method, url: $scope.url, data: { 
+                    "id": trip._id,
+                    "seats": trip.seats_available,
+                    "uid": "U27870",
+                    "cancelled": true
+                    } 
+                }).
+                    then(function(response) {
+                    $scope.status = response.status;
+                //    $scope.trips = response.data;
+                    alert("Booking Cancelled");
+                    trip.disabled = true;                
+                    console.log(response.status);
+                    console.log(response.data);
+                    }, function(response) {
+                    $scope.data = response.data || 'Request failed';
+                    $scope.status = response.status;   
+                    });
+                } 
+                else {
+                    alert("Cancellation ignored");
+                };      
+            };
+
+        }]);
+</script>
+
+</body>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en" ng-app="letsgo1" >
+<head>
+    <meta charset="utf-8">
+    <title>UST Car Pooling</title>
+<!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.4/angular.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+    <div class="container-fluid" ng-controller="addrideController">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand active" href="http://localhost:3000">LetsGo</a>
+        </div>
+
+         <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <!--<li class="active"><a href="#">Get Ride <span class="sr-only">(current)</span></a></li> -->
+        <li><a href="http://localhost:3000/getride">Get Ride </a></li>
+        <li class="active"><a href="http://localhost:3000/offerride">Offer Ride<span class="sr-only">(current)</span></a></li>
+        <li><a href="#">Forum</a></li>
+      </ul>
+      
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="http://localhost:3000/myrides">My Rides</a></li> 
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+
+    </br>
+
+        <h1> Add your journey detials to offer pooling..</h1>
+        <div class="row">
+			<div class="col-lg-3">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon" id="sizing-addon">From</span>
+					<input type="text" class="form-control" placeholder="Starting from" aria-describedby="sizing-addon1" ng-model="postData.from">
+				</div>
+			</div>
+			<div class="col-lg-3">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon" id="sizing-addon1">To  </span>
+					<input type="text" class="form-control" placeholder="Departing to" aria-describedby="sizing-addon1" ng-model="postData.to">
+				</div>
+			</div>
+            <div class="col-lg-2">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon" id="sizing-addon1">Seats left  </span>
+					<input type="text" class="form-control" placeholder="1" aria-describedby="sizing-addon1" ng-model="postData.seats_available">
+				</div>
+			</div>
+            <div class="col-lg-3">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon" id="sizing-addon1">Date of Journey </span>
+					<input type="date" class="form-control"  aria-describedby="sizing-addon1" ng-model="postData.journey_date">
+				</div>
+			</div>
+			<div class="col-lg-2">
+				<div class="input-group">
+					<span class="input-group-btn ">
+					<button class=" btn btn-lg btn-default " type="button"  ng-click="addRide()" >Add</button>
+					</span>
+				</div>
+			</div>
+		</div>
+
+        <div ng-show="showme" >
+            <h2> Your ride is offered for pooling... </h2>
+            <div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Seats</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{ trip.from }}</td>
+                        <td>{{ trip.to }}</td>
+                        <td>{{ trip.seats_available }}</td>
+                        <td>{{ trip.journey_date }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>  
+        </div>
+     
+    </div><!-- /.container-fluid -->
+
+    </nav> 
+
+    <script>
+
+		var letsgo1 = angular.module("letsgo1", []);
+        	
+        letsgo1.controller('addrideController', ['$scope', '$http', function($scope, $http) {
+
+            $scope.method = 'POST';
+            $scope.url = '/trips';
+            $scope.showme = false; 
+            // var postData = {
+            //     "from": String,
+            //     "to" : String,
+            //     "seats_available": Number,
+            //     "journey_date": Date,
+            //     "uid" : "U27870"
+            // };
+
+            // change this uid, name from login detials
+            // postData.uid = "U27870";
+            // postData.associate_name ="Mohankumar";
+            //
+
+            $scope.addRide =  function(){
+               
+            $scope.code = null;
+            $scope.response = null;
+            $scope.showme = true;
+
+            $http({method: $scope.method, url: $scope.url, data: {
+                "from":$scope.postData.from,
+                "to" : $scope.postData.to,
+                "seats_available": $scope.postData.seats_available,
+                "journey_date": $scope.postData.journey_date,
+                "uid" : "U27871",
+                "associate_name": "Test"
+            }}).
+                then(function(response) {
+                $scope.status = response.status;
+                $scope.trip = response.data;
+                console.log(response.status);
+                console.log($scope.trip);
+                }, function(response) {
+                $scope.data = response.data || 'Request failed';
+                $scope.status = response.status;   
+                });
+            };
+        }]);
+    </script>
+
+</body>
